@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = `http://${window.location.hostname}:3000/api/notes`;
+// เปลี่ยนบรรทัดที่ 3 เป็นแบบนี้ครับ
+const API_URL = process.env.VITE_API_URL || `http://${window.location.hostname}:3000/api/notes`;
 
 export default {
   serverDown() {

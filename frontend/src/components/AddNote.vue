@@ -23,15 +23,25 @@ export default {
     };
   },
   methods: {
-    async addNote() {
-      if (this.text.length) {
-        const titleToSave = this.title.length ? this.title : new Date().toLocaleString("ru-RU");
-        const textToSave = this.text;
-        const createNote = [titleToSave, textToSave];
-        await noteService.addNote(createNote);
-        this.$router.push('/');
-      }
-    },
+   async addNote() {
+  if (this.text.length) {
+    // 1. เตรียมข้อมูล
+    const titleToSave = this.title.length ? this.title : new Date().toLocaleString("ru-RU");
+    const textToSave = this.text;
+
+    // 2. แก้ไขตรงนี้: เปลี่ยนจาก Array [] เป็น Object {} ให้ตรงกับที่ Backend รอรับ
+    const createNote = {
+      title: titleToSave,
+      text: textToSave
+    };
+
+    // 3. ส่งข้อมูลไปหา Service
+    await noteService.addNote(createNote);
+    
+    // 4. กลับไปหน้าแรก
+    this.$router.push('/');
+  }
+},
     async autoExpand() {
       this.$refs.expandingTextarea.style.height = 'auto';
       this.$refs.expandingTextarea.style.height = this.$refs.expandingTextarea.scrollHeight + 'px';
