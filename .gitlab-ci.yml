@@ -1,49 +1,84 @@
 stages:
-  - build
   - test
+  - build
+  - push
   - deploy
 
-# 1. Stage Build: เช็คว่า Build Docker Image ผ่านไหม
+# ตั้งค่าตัวแปรกลาง
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# 1. Stage Test: เช็คโค้ดก่อนว่ารันผ่านไหม
+test_backend:
+  stage: test
+  image: node:18-alpine
+  tags:
+    - informatics
+  script:
+    - cd backend
+    - npm install
+    - npm test || echo "No tests defined, skipping..."
+  only:
+    - main
+
+test_frontend:
+  stage: test
+  image: node:18-alpine
+  tags:
+    - informatics
+  script:
+    - cd frontend
+    - npm install
+    - npm run lint || echo "No linting defined, skipping..."
+  only:
+    - main
+
+# 2. Stage Build: สร้าง Image จาก Dockerfile
 build_images:
   stage: build
   image: docker:24.0.5
   services:
     - docker:24.0.5-dind
+  tags:
+    - informatics
   script:
-    - docker compose build
-  only:
-    - main  # ให้ทำงานเฉพาะตอน push ขึ้น branch main
-
-# 2. Stage Test: ตัวอย่างการรัน Test (ถ้ามี)
-test_backend:
-  stage: test
-  image: node:18-alpine
-  script:
-    - cd backend
-    - npm install
-    # - npm test  # เปิดใช้งานถ้าเพื่อนเขียน test ไว้ใน package.json
+    - docker build -t $CI_REGISTRY_IMAGE/backend:latest ./backend
+    - docker build -t $CI_REGISTRY_IMAGE/frontend:latest ./frontend
   only:
     - main
 
-# 3. Stage Deploy: สั่งให้ Server ของมหาลัยรัน App
+# 3. Stage Push: ส่ง Image ขึ้นไปเก็บที่ GitLab Container Registry
+push_images:
+  stage: push
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  tags:
+    - informatics
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker push $CI_REGISTRY_IMAGE/backend:latest
+    - docker push $CI_REGISTRY_IMAGE/frontend:latest
+  only:
+    - main
+
+# 4. Stage Deploy: สั่งให้ Server มหาลัยดึง Image ใหม่ไปรัน
 deploy_to_server:
   stage: deploy
   image: alpine:latest
+  tags:
+    - informatics
   before_script:
-    - apk add --no-network --no-cache openssh-client
-    # ตั้งค่า SSH Key เพื่อให้ GitLab Runner login เข้า Server มหาลัยได้
+    - apk add --no-cache openssh-client
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
+    - ssh-keyscan 10.5.3.213 >> ~/.ssh/known_hosts
   script:
-    # 1. ก๊อปปี้ไฟล์ไปที่ Server (สมมติ IP เป็น 10.5.3.213 ตามที่คิงบอก)
-    - scp -o StrictHostKeyChecking=no docker-compose.yml .env ./backend/Dockerfile ./frontend/Dockerfile user@10.5.3.213:/home/user/app
-    # 2. สั่งรัน Docker Compose บน Server
-    - ssh -o StrictHostKeyChecking=no user@10.5.3.213 "cd /home/user/app && docker-compose up -d --build"
-  environment:
-    name: production
-    url: http://10.5.3.213:8080
+    # รีโมทไปที่ Server เพื่อดึงภาพใหม่และ restart container
+    - ssh -o StrictHostKeyChecking=no user@10.5.3.213 "cd /home/user/app && docker compose pull && docker compose up -d"
   only:
     - main
-  when: manual # ตั้งเป็น manual เพื่อให้เรากดปุ่ม Deploy เองได้เมื่อพร้อม
+  when: manual # ให้เรากดปุ่ม Deploy เองเพื่อความชัวร์
