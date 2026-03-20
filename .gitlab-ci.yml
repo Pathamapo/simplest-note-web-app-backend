@@ -1,0 +1,49 @@
+stages:
+  - build
+  - test
+  - deploy
+
+# 1. Stage Build: เช็คว่า Build Docker Image ผ่านไหม
+build_images:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  script:
+    - docker compose build
+  only:
+    - main  # ให้ทำงานเฉพาะตอน push ขึ้น branch main
+
+# 2. Stage Test: ตัวอย่างการรัน Test (ถ้ามี)
+test_backend:
+  stage: test
+  image: node:18-alpine
+  script:
+    - cd backend
+    - npm install
+    # - npm test  # เปิดใช้งานถ้าเพื่อนเขียน test ไว้ใน package.json
+  only:
+    - main
+
+# 3. Stage Deploy: สั่งให้ Server ของมหาลัยรัน App
+deploy_to_server:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-network --no-cache openssh-client
+    # ตั้งค่า SSH Key เพื่อให้ GitLab Runner login เข้า Server มหาลัยได้
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    # 1. ก๊อปปี้ไฟล์ไปที่ Server (สมมติ IP เป็น 10.5.3.213 ตามที่คิงบอก)
+    - scp -o StrictHostKeyChecking=no docker-compose.yml .env ./backend/Dockerfile ./frontend/Dockerfile user@10.5.3.213:/home/user/app
+    # 2. สั่งรัน Docker Compose บน Server
+    - ssh -o StrictHostKeyChecking=no user@10.5.3.213 "cd /home/user/app && docker-compose up -d --build"
+  environment:
+    name: production
+    url: http://10.5.3.213:8080
+  only:
+    - main
+  when: manual # ตั้งเป็น manual เพื่อให้เรากดปุ่ม Deploy เองได้เมื่อพร้อม

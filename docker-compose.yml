@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # 1. MongoDB Service (ตัวฐานข้อมูล)
+  mongodb:
+    image: mongo:latest
+    container_name: notes-db
+    ports:
+      - "27017:27017" # ล็อคพอร์ต 27017 (ระวังชนกับตัวที่เคยรันในเครื่องนะ)
+    networks:
+      - notes-network
+    volumes:
+      - notes-data:/data/db # ทำ Volume เพื่อไม่ให้ข้อมูลหายตอนปิดเครื่อง
+
+  # 2. Backend Service (API)
+  backend:
+    build: ./backend # ให้ไป Build Image จากโฟลเดอร์ backend
+    container_name: notes-api
+    ports:
+      - "3000:3000"
+    environment:
+      # ส่งตัวแปรเชื่อมต่อ DB ไปหา Backend โดยใช้ชื่อ Service "mongodb" แทน IP
+      - MONGO_URL=mongodb://mongodb:27017/simplest-note-web-app
+      - APP_PORT=3000
+    depends_on:
+      - mongodb # ให้ Mongo รันขึ้นมาก่อนค่อยรัน Backend
+    networks:
+      - notes-network
+
+  # 3. Frontend Service (Web Application)
+  frontend:
+    build:
+      context: ./frontend
+      # ต้าอย่าลืมใส่ IP ของเครื่องนายตอนส่ง VITE_API_URL เข้าไปตอน Build นะครับ
+      # ในตัวอย่างนี้ผมใส่เป็น IP ตัวที่คิงให้มา (สมมติว่าเป็นเครื่องรัน Backend ตัวหลัก)
+      args:
+        - VITE_API_URL=http://10.5.3.213:31476/api
+    container_name: notes-web
+    ports:
+      - "8080:80" # แมพพอร์ต 8080 ในเครื่องเรา เข้าไปหาพอร์ต 80 (Nginx) ใน Docker
+    depends_on:
+      - backend # ให้ Backend รันขึ้นมาก่อนค่อยรัน Frontend
+    networks:
+      - notes-network
+
+# กำหนด Network ให้ทั้ง 3 ตัวคุยกันได้
+networks:
+  notes-network:
+    driver: bridge
+
+# กำหนด Volume สำหรับ MongoDB data
+volumes:
+  notes-data:
