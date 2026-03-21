@@ -5,7 +5,11 @@ const wrapAsync = require('../middlewares/errorHandler');
 
 router.use((req, res, next) => {
   const method = req.method;
-  const path = req.path.replace(/[\n\r\t]/g, '_'); // แทน newline, tab ด้วย underscore
+  const path = req.path
+    .replaceAll('\n', '_')
+    .replaceAll('\r', '_')
+    .replaceAll('\t', '_'); // sanitize user input for safe logging
+
   console.log(`Request: ${method} ${path}`);
   next();
 });
