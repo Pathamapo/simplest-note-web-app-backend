@@ -6,8 +6,12 @@ stages:
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
+  REGISTRY: docker.io
+  DOCKERHUB_NAMESPACE: "66160155"
+  BACKEND_IMAGE: $REGISTRY/$DOCKERHUB_NAMESPACE/notes-backend:latest
+  FRONTEND_IMAGE: $REGISTRY/$DOCKERHUB_NAMESPACE/notes-frontend:latest
 
-# 1. Stage Test: แยกกันให้ชัดเจน
+# 1. Stage Test
 test_backend:
   stage: test
   image: node:18-alpine
@@ -32,7 +36,7 @@ test_frontend:
   only:
     - main
 
-# 2. Stage Build: (ใส่ allow_failure ไว้กันเหนียว)
+# 2. Stage Build: สร้าง Image เก็บไว้ในเครื่อง Runner
 build_images:
   stage: build
   image: docker:24.0.5
@@ -40,47 +44,53 @@ build_images:
     - docker:24.0.5-dind
   tags:
     - informatics
-  allow_failure: true
+  needs: ["test_backend", "test_frontend"]
   script:
-    - docker build -t $CI_REGISTRY_IMAGE/backend:latest ./backend
-    - docker build -t $CI_REGISTRY_IMAGE/frontend:latest ./frontend
+    - docker build -t $BACKEND_IMAGE ./backend
+    - docker build --build-arg VITE_API_URL=http://10.5.3.213:31476/api/notes -t $FRONTEND_IMAGE ./frontend
+    # เซฟ Image เป็นไฟล์ชั่วคราวเพื่อให้ Stage ถัดไปเอาไปใช้ได้ (ถ้า Runner ไม่ได้แชร์ storage กัน)
+    - docker save $BACKEND_IMAGE > backend.tar
+    - docker save $FRONTEND_IMAGE > frontend.tar
+  artifacts:
+    paths:
+      - backend.tar
+      - frontend.tar
+    expire_in: 1 hour
   only:
     - main
 
-# 3. Stage Push: (ตัวปัญหาพอร์ต 5050 - ยอมให้พังได้)
-push_images:
+# 3. Stage Push: ส่ง Image ขึ้น Docker Hub
+push_to_dockerhub:
   stage: push
   image: docker:24.0.5
   services:
     - docker:24.0.5-dind
   tags:
     - informatics
-  allow_failure: true
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  needs: ["build_images"]
   script:
-    - docker push $CI_REGISTRY_IMAGE/backend:latest
-    - docker push $CI_REGISTRY_IMAGE/frontend:latest
+    - docker load < backend.tar
+    - docker load < frontend.tar
+    - echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+    - docker push $BACKEND_IMAGE
+    - docker push $FRONTEND_IMAGE
   only:
     - main
 
-# 4. Stage Deploy: (รันสดบน Server ไม่ต้องง้อ Registry)
-deploy_to_server:
+# 4. Stage Deploy: สั่งงาน K8s ผ่าน KUBE_CONFIG
+deploy_to_k8s:
   stage: deploy
-  image: alpine:latest
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: [""]
   tags:
     - informatics
-  before_script:
-    - apk add --no-cache openssh-client
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan 10.5.3.213 >> ~/.ssh/known_hosts
+  needs: ["push_to_dockerhub"]
   script:
-    # ส่งโค้ดทั้งหมดไป Build และรันที่เครื่องอาจารย์โดยตรง
-    - scp -o StrictHostKeyChecking=no -r ./* user@10.5.3.213:/home/user/app
-    - ssh -o StrictHostKeyChecking=no user@10.5.3.213 "cd /home/user/app && docker-compose up -d --build"
+    - export KUBECONFIG="$KUBE_CONFIG"
+    - sed -i "s|YOUR_BACKEND_IMAGE|$BACKEND_IMAGE|g" k8s/*.yaml
+    - sed -i "s|YOUR_FRONTEND_IMAGE|$FRONTEND_IMAGE|g" k8s/*.yaml
+    - kubectl apply -f k8s/
   only:
     - main
   when: manual
