@@ -4,8 +4,9 @@ const noteController = require('../controllers/noteController');
 const wrapAsync = require('../middlewares/errorHandler');
 
 router.use((req, res, next) => {
-  const safePath = req.path; 
-  console.log(`Request: ${req.method} ${safePath}`);
+  const method = req.method;
+  const path = req.path.replace(/[\n\r\t]/g, '_'); // แทน newline, tab ด้วย underscore
+  console.log(`Request: ${method} ${path}`);
   next();
 });
 

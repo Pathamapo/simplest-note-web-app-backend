@@ -23,16 +23,17 @@ module.exports = app;
 
 // run server (เฉพาะตอนไม่ได้ test)
 if (require.main === module) {
-  (async () => {
+  const startServer = async () => {
     try {
       if (!process.env.MONGO_URL) {
         console.error("FATAL ERROR: MONGO_URL is not defined");
         process.exit(1);
       }
 
-      // ใช้ top-level await ภายใน async IIFE
+      // เชื่อมต่อ MongoDB
       await mongoose.connect(process.env.MONGO_URL);
 
+      // เริ่ม server
       app.listen(port, '0.0.0.0', () => {
         console.log(`Server running on port ${port}`);
       });
@@ -40,5 +41,7 @@ if (require.main === module) {
       console.error("Failed to connect to MongoDB:", err);
       process.exit(1);
     }
-  })();
+  };
+
+  startServer();
 }
