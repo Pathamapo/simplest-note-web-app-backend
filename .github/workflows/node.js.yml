@@ -34,17 +34,17 @@ jobs:
         env:
           MONGO_URL: mongodb://localhost:27017/notesdb
 
-      # 4. SonarCloud Scan (แก้แล้ว)
+      # 4. SonarCloud Scan (แก้ถูกแล้ว 🔥)
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
           args: >
-            -Dsonar.projectKey=pathamapornw
+            -Dsonar.projectKey=Pathamapo_simplest-note-web-app-backend
             -Dsonar.organization=pathamapornw
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # 5. Trivy Scan (แก้ version แล้ว)
+      # 5. Trivy Scan
       - name: Scan with Trivy
         uses: aquasecurity/trivy-action@master
         with:
