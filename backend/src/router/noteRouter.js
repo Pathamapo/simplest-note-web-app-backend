@@ -4,8 +4,9 @@ const noteController = require('../controllers/noteController');
 const wrapAsync = require('../middlewares/errorHandler');
 
 router.use((req, res, next) => {
-    console.log(`Request: ${req.method}, ${req.url}`);
-    next();
+  const safePath = req.path; 
+  console.log(`Request: ${req.method} ${safePath}`);
+  next();
 });
 
 router.post('/add', wrapAsync(noteController.addOneNote));

@@ -1,35 +1,33 @@
 <template>
-    <center>
-        <h1>Not Found</h1>
-        <a href="/">Go home?</a>
-    </center>
+  <div class="centered">
+    <h1>Not Found</h1>
+    <a href="/">Go home?</a>
+  </div>
 </template>
   
 <script>
-
 export default {
-    name: 'NotFound'
+  name: 'NotFound'
 }
-
 </script>
   
 <style scoped>
-center {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.centered {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 h1 {
-    color: #dbdddf;
-    font-size: 2em;
-    margin: 10px;
+  color: #dbdddf;
+  font-size: 2em;
+  margin: 10px;
 }
 
 a {
-    color: #dbdddf;
+  color: #dbdddf;
 }
 </style>

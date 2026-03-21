@@ -156,7 +156,7 @@ button:hover {
 
 button:disabled {
   background-color: #202021;
-  color: #6a6a6a;
+  color: #cfcfcf;
   cursor: not-allowed;
 }
 

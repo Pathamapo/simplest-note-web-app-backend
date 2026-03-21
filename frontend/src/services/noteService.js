@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-// เปลี่ยนบรรทัดที่ 3 เป็นแบบนี้ครับ
-const API_URL = process.env.VITE_API_URL || `http://${window.location.hostname}:3000/api/notes`;
+const API_URL = process.env.VITE_API_URL || `http://${globalThis.location.hostname}:3000/api/notes`;
 
 export default {
   serverDown() {
-    alert('Can`t connect to the server');
+    alert("Can't connect to the server");
   },
+
   async getAllNotes() {
     let chunk = {};
     await axios.get(API_URL + '/getall')
@@ -14,6 +14,7 @@ export default {
       .catch(() => { this.serverDown() });
     return chunk;
   },
+
   async addNote(data) {
     let chunk = {};
     await axios.post(API_URL + '/add', data)
@@ -21,6 +22,7 @@ export default {
       .catch(() => { this.serverDown() });
     return chunk;
   },
+
   async deleteNote(id) {
     let chunk = {};
     await axios.delete(API_URL + `/delete/${id}`)
@@ -28,6 +30,7 @@ export default {
       .catch(() => { this.serverDown() });
     return chunk;
   },
+
   async getNoteById(id) {
     let chunk = {};
     await axios.get(API_URL + `/get/${id}`)
@@ -35,6 +38,7 @@ export default {
       .catch(() => { this.serverDown() });
     return chunk;
   },
+
   async updateNoteById(id, data) {
     let chunk = {};
     await axios.put(API_URL + `/update/${id}`, data)
