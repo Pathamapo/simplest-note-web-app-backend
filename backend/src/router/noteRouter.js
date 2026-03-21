@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 const noteController = require('../controllers/noteController');
-const wrapAsync = require('../middlewares/erroeHandler');
+const wrapAsync = require('../middlewares/errorHandler');
 
 router.use((req, res, next) => {
     console.log(`Request: ${req.method}, ${req.url}`);

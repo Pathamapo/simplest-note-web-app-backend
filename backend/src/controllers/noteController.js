@@ -1,5 +1,5 @@
 const Note = require('../models/noteModel');
-const wrapAsync = require('../middlewares/erroeHandler'); 
+const wrapAsync = require('../middlewares/errorHandler'); 
 
 class NoteController {
 
