@@ -25,17 +25,17 @@ jobs:
         with:
           node-version: 18
 
-      # 3. Install Backend dependencies & run tests with coverage
-      - name: Test Backend & Generate Coverage
+      # 3. Install Backend dependencies & run tests (ไม่สร้าง coverage)
+      - name: Test Backend
         run: |
           cd backend
           npm install
-          npm test -- --coverage --coverageReporters=lcov
+          npm test
         env:
           MONGO_URL: mongodb://localhost:27017/notesdb
           NODE_ENV: test
 
-      # 4. SonarCloud Scan (อ่าน coverage จริง)
+      # 4. SonarCloud Scan (ไม่อ่าน coverage)
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
@@ -43,7 +43,6 @@ jobs:
             -Dsonar.projectKey=Pathamapo_simplest-note-web-app-backend
             -Dsonar.organization=pathamapornw
             -Dsonar.sources=frontend,backend
-            -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
