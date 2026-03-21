@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = process.env.VITE_API_URL || `http://${globalThis.location.hostname}:3000/api/notes`;
+// ใช้ตัวแปร VITE_API_URL จาก .env
+// fallback เป็น localhost สำหรับ development
+const API_URL = import.meta.env.VITE_API_URL || `http://localhost:3000/api/notes`;
 
 export default {
   serverDown() {
