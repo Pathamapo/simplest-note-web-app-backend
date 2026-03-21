@@ -34,12 +34,12 @@ jobs:
         env:
           MONGO_URL: mongodb://localhost:27017/notesdb
 
-      # 4. SonarCloud Scan (รวมทั้ง frontend/backend)
+      # 4. SonarCloud Scan (แก้ถูกแล้ว 🔥)
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
           args: >
-            -Dsonar.projectKey=Pathamapo_simplest-note-web-app
+            -Dsonar.projectKey=Pathamapo_simplest-note-web-app-backend
             -Dsonar.organization=pathamapornw
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -86,7 +86,7 @@ jobs:
 
       # 13. Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        if: false
+        if: github.ref == 'refs/heads/main'
         run: |
           export KUBECONFIG=$PWD/kubeconfig.yaml
           kubectl get nodes
