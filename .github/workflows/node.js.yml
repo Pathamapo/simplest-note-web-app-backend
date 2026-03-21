@@ -1,13 +1,10 @@
 name: DevSecOps Full Pipeline
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   pipeline:
     runs-on: ubuntu-latest
-
     services:
       mongodb:
         image: mongo:latest
@@ -45,7 +42,6 @@ jobs:
             -Dsonar.sources=frontend,backend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
 
       - name: Scan with Trivy
         uses: aquasecurity/trivy-action@master
