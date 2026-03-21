@@ -15,11 +15,11 @@ jobs:
           - 27017:27017
 
     steps:
-    # 1. ดึงโค้ด
+    # 1. Checkout code
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 2. ตั้งค่า Node
+    # 2. Setup Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
@@ -34,7 +34,13 @@ jobs:
       env:
         MONGO_URL: mongodb://localhost:27017/notesdb
 
-    # 4. Build Frontend
+    # 4. SonarCloud Scan 🔥
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v2
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    # 5. Build Frontend
     - name: Build Frontend
       run: |
         cd frontend
@@ -43,21 +49,22 @@ jobs:
       env:
         VITE_API_URL: http://localhost:3000/api/notes
 
-    # 5. Login Docker Hub
+    # 6. Login Docker Hub
     - name: Login Docker Hub
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    # 6. Build Docker Backend
+    # 7. Build Docker Backend
     - name: Build Backend Image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/notes-backend ./backend
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/notes-backend:latest ./backend
 
-    # 7. Build Docker Frontend
+    # 8. Build Docker Frontend
     - name: Build Frontend Image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/notes-frontend ./frontend
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/notes-frontend:latest ./frontend
 
-    # 8. Push Docker
+    # 9. Push Docker Backend
     - name: Push Backend Image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/notes-backend
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/notes-backend:latest
 
+    # 10. Push Docker Frontend
     - name: Push Frontend Image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/notes-frontend
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/notes-frontend:latest
