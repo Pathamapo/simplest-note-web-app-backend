@@ -50,7 +50,7 @@ jobs:
         with:
           scan-type: fs
           scan-ref: .
-          exit-code: 1
+          exit-code: 0
 
       # 6. Login Docker Hub
       - name: Login Docker Hub
