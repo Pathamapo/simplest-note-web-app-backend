@@ -1,11 +1,11 @@
-name: DevSecOps Pipeline
+name: DevSecOps Full Pipeline
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  test-build-push:
+  pipeline:
     runs-on: ubuntu-latest
 
     services:
@@ -15,56 +15,74 @@ jobs:
           - 27017:27017
 
     steps:
-    # 1. Checkout code
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # 1. Checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # 2. Setup Node.js
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      # 2. Setup Node
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-    # 3. Install + Test Backend
-    - name: Test Backend
-      run: |
-        cd backend
-        npm install
-        npm test
-      env:
-        MONGO_URL: mongodb://localhost:27017/notesdb
+      # 3. Test Backend 🔥 (เพิ่มเข้ามา)
+      - name: Test Backend
+        run: |
+          cd backend
+          npm install
+          npm test
+        env:
+          MONGO_URL: mongodb://localhost:27017/notesdb
 
-    # 4. SonarCloud Scan 🔥
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v2
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # 4. SonarCloud
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    # 5. Build Frontend
-    - name: Build Frontend
-      run: |
-        cd frontend
-        npm install
-        npm run build
-      env:
-        VITE_API_URL: http://localhost:3000/api/notes
+      # 5. Trivy (fail ถ้ามีช่องโหว่)
+      - name: Scan with Trivy
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          exit-code: 1   # 🔥 ถ้ามี vuln จะ fail
 
-    # 6. Login Docker Hub
-    - name: Login Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      # 6. Login Docker
+      - name: Login Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    # 7. Build Docker Backend
-    - name: Build Backend Image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/notes-backend:latest ./backend
+      # 7. Build Backend
+      - name: Build Backend
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/notesapp-backend:latest ./backend
 
-    # 8. Build Docker Frontend
-    - name: Build Frontend Image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/notes-frontend:latest ./frontend
+      # 8. Push Backend
+      - name: Push Backend
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/notesapp-backend:latest
 
-    # 9. Push Docker Backend
-    - name: Push Backend Image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/notes-backend:latest
+      # 9. Build Frontend
+      - name: Build Frontend
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/notesapp-frontend:latest ./frontend
 
-    # 10. Push Docker Frontend
-    - name: Push Frontend Image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/notes-frontend:latest
+      # 10. Push Frontend
+      - name: Push Frontend
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/notesapp-frontend:latest
+
+      # 11. Install kubectl
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/stable.txt"
+          curl -LO "https://dl.k8s.io/release/$(cat stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      # 12. Setup kubeconfig
+      - name: Setup kubeconfig
+        run: echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
+
+      # 13. Deploy (เฉพาะ main เท่านั้น)
+      - name: Deploy to Kubernetes
+        if: github.ref == 'refs/heads/main'
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig.yaml
+          kubectl apply -f k8s/
