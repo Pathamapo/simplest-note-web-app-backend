@@ -86,7 +86,7 @@ jobs:
 
       # 13. Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        if: github.ref == 'refs/heads/main'
+        if: false
         run: |
           export KUBECONFIG=$PWD/kubeconfig.yaml
           kubectl get nodes
