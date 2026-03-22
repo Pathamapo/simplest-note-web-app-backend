@@ -1,10 +1,13 @@
 name: DevSecOps Full Pipeline
+
 on:
   push:
     branches: [ "main" ]
+
 jobs:
   pipeline:
     runs-on: ubuntu-latest
+
     services:
       mongodb:
         image: mongo:latest
@@ -22,7 +25,7 @@ jobs:
         with:
           node-version: 18
 
-      # 3. Install Backend dependencies & run tests (ไม่สร้าง coverage)
+      # 3. Test Backend
       - name: Test Backend
         run: |
           cd backend
@@ -32,7 +35,7 @@ jobs:
           MONGO_URL: mongodb://localhost:27017/notesdb
           NODE_ENV: test
 
-      # 4. SonarCloud Scan (ไม่อ่าน coverage)
+      # 4. SonarCloud Scan
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
@@ -40,9 +43,11 @@ jobs:
             -Dsonar.projectKey=Pathamapo_simplest-note-web-app-backend
             -Dsonar.organization=pathamapornw
             -Dsonar.sources=frontend,backend
+            -Dsonar.coverage.exclusions=**
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      # 5. Security Scan (Trivy)
       - name: Scan with Trivy
         uses: aquasecurity/trivy-action@master
         with:
@@ -54,13 +59,13 @@ jobs:
       - name: Login Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 7. Build & Push Backend Image
+      # 7. Build & Push Backend
       - name: Build & Push Backend
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/notesapp-backend:latest ./backend
           docker push ${{ secrets.DOCKER_USERNAME }}/notesapp-backend:latest
 
-      # 8. Build & Push Frontend Image
+      # 8. Build & Push Frontend
       - name: Build & Push Frontend
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/notesapp-frontend:latest ./frontend
@@ -79,8 +84,9 @@ jobs:
 
       # 11. Deploy to Kubernetes (เปิดเมื่อพร้อม)
       - name: Deploy to Kubernetes
-        if: false  # เปลี่ยนเป็น true เมื่อพร้อม
+        if: false   # 🔥 เปลี่ยนเป็น true เมื่อมีไฟล์ k8s/ พร้อม
         run: |
           export KUBECONFIG=$PWD/kubeconfig.yaml
-          kubectl get nodes
           kubectl apply -f k8s/
+          kubectl get pods
+          kubectl get services
