@@ -47,7 +47,7 @@ build_images:
   needs: ["test_backend", "test_frontend"]
   script:
     - docker build -t $BACKEND_IMAGE ./backend
-    - docker build --build-arg VITE_API_URL=http://10.5.3.213:31476/api/notes -t $FRONTEND_IMAGE ./frontend
+    - docker build --build-arg VUE_APP_API_URL=http://10.5.3.213:31476/api/notes -t $FRONTEND_IMAGE ./frontend
     # เซฟ Image เป็นไฟล์ชั่วคราวเพื่อให้ Stage ถัดไปเอาไปใช้ได้ (ถ้า Runner ไม่ได้แชร์ storage กัน)
     - docker save $BACKEND_IMAGE > backend.tar
     - docker save $FRONTEND_IMAGE > frontend.tar
