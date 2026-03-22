@@ -16,7 +16,7 @@ spec:
       containers:
       
 name: backend
-      image: pathamapornw/notesapp-backend:latest
+      image: YOUR_BACKEND_IMAGE
       ports:
 containerPort: 3000
     env:
