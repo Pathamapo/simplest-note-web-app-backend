@@ -16,6 +16,6 @@ spec:
       containers:
       
 name: frontend
-      image: pathamapornw/notesapp-frontend:latest
+      image: YOUR_FRONTEND_IMAGE
       ports:
 containerPort: 80
