@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-// ใช้ตัวแปร VITE_API_URL จาก .env
-// fallback เป็น localhost สำหรับ development
-const API_URL = process.env.VUE_APP_API_URL || `/api`;
+const API_URL = process.env.VUE_APP_API_URL || "/api";
 
 export default {
   serverDown() {
@@ -10,42 +8,47 @@ export default {
   },
 
   async getAllNotes() {
-    let chunk = {};
-    await axios.get(API_URL + '/getall')
-      .then((response) => { chunk = response })
-      .catch(() => { this.serverDown() });
-    return chunk;
+    try {
+      const response = await axios.get(`${API_URL}/getall`);
+      return response;
+    } catch {
+      this.serverDown();
+    }
   },
 
   async addNote(data) {
-    let chunk = {};
-    await axios.post(API_URL + '/add', data)
-      .then((response) => { chunk = response })
-      .catch(() => { this.serverDown() });
-    return chunk;
+    try {
+      const response = await axios.post(`${API_URL}/add`, data);
+      return response;
+    } catch {
+      this.serverDown();
+    }
   },
 
   async deleteNote(id) {
-    let chunk = {};
-    await axios.delete(API_URL + `/delete/${id}`)
-      .then((response) => { chunk = response })
-      .catch(() => { this.serverDown() });
-    return chunk;
+    try {
+      const response = await axios.delete(`${API_URL}/delete/${id}`);
+      return response;
+    } catch {
+      this.serverDown();
+    }
   },
 
   async getNoteById(id) {
-    let chunk = {};
-    await axios.get(API_URL + `/get/${id}`)
-      .then((response) => { chunk = response })
-      .catch(() => { this.serverDown() });
-    return chunk;
+    try {
+      const response = await axios.get(`${API_URL}/get/${id}`);
+      return response;
+    } catch {
+      this.serverDown();
+    }
   },
 
   async updateNoteById(id, data) {
-    let chunk = {};
-    await axios.put(API_URL + `/update/${id}`, data)
-      .then((response) => { chunk = response })
-      .catch(() => { this.serverDown() });
-    return chunk;
+    try {
+      const response = await axios.put(`${API_URL}/update/${id}`, data);
+      return response;
+    } catch {
+      this.serverDown();
+    }
   }
 };
