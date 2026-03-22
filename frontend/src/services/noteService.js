@@ -10,7 +10,7 @@ export default {
   async getAllNotes() {
     try {
       const response = await axios.get(`${API_URL}/getall`);
-      return response;
+      return response.data;
     } catch {
       this.serverDown();
     }
@@ -19,7 +19,7 @@ export default {
   async addNote(data) {
     try {
       const response = await axios.post(`${API_URL}/add`, data);
-      return response;
+      return response.data;
     } catch {
       this.serverDown();
     }
@@ -28,7 +28,7 @@ export default {
   async deleteNote(id) {
     try {
       const response = await axios.delete(`${API_URL}/delete/${id}`);
-      return response;
+      return response.data;
     } catch {
       this.serverDown();
     }
@@ -37,7 +37,7 @@ export default {
   async getNoteById(id) {
     try {
       const response = await axios.get(`${API_URL}/get/${id}`);
-      return response;
+      return response.data;
     } catch {
       this.serverDown();
     }
@@ -46,7 +46,7 @@ export default {
   async updateNoteById(id, data) {
     try {
       const response = await axios.put(`${API_URL}/update/${id}`, data);
-      return response;
+      return response.data;
     } catch {
       this.serverDown();
     }
