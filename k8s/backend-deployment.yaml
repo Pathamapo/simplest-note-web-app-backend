@@ -12,13 +12,13 @@ spec:
     metadata:
       labels:
         app: backend
-  spec:
+    spec:
       containers:
       - name: backend
-        image: YOUR_BACKEND_IMAGE
+        image: pathamapornw/notesapp-backend:latest
         ports:
         - containerPort: 3000
-        env: # <--- ต้องเริ่มตรงนี้ (เยื้องจากขีดกลางเข้ามา 2 เคาะ)
+        env:
         - name: MONGO_URL
           value: "mongodb://10.5.3.213:27017/notesapp"
         - name: PORT
@@ -26,4 +26,4 @@ spec:
         - name: SESSION_SECRET
           value: "supersecret123"
         - name: FRONTEND_URL
-          value: "http://10.5.3.213:31476/"
+          value: "http://10.5.3.213:31476"
