@@ -6,8 +6,8 @@ RUN npm install
 COPY . .
 
 # รับค่า VITE_API_URL จาก build-arg
-ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL}
+ARG VUE_APP_API_URL
+ENV VUE_APP_API_URL=${VUE_APP_API_URL}
 
 # Build หน้าเว็บ
 RUN npm run build
