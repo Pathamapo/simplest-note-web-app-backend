@@ -25,9 +25,10 @@ metadata:
   name: frontend-service
   namespace: notesapp
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: frontend
   ports:
     - port: 80
       targetPort: 80
+      nodePort: 30000
