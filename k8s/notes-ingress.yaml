@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: notes-app-ingress
   namespace: notesapp
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
