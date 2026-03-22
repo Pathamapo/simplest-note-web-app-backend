@@ -7,7 +7,7 @@ COPY . .
 
 # รับค่า VITE_API_URL จาก build-arg
 ARG VUE_APP_API_URL
-ENV VUE_APP_API_URL=${VUE_APP_API_URL}
+ENV VUE_APP_API_URL=http://10.5.3.213:30001/api/notes
 
 # Build หน้าเว็บ
 RUN npm run build
