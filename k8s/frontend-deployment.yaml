@@ -18,7 +18,16 @@ spec:
         image: pathamapornw/notesapp-frontend:latest
         ports:
         - containerPort: 80
-        env:
-        - name: REACT_APP_API_URL
-          value: "/api"
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: notesapp
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
