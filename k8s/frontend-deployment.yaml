@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: pathamapornw/notesapp-frontend:latest
+        image: pathamapornw/notesapp-frontend:latest v2
         imagePullPolicy: Always
         ports:
         - containerPort: 80
