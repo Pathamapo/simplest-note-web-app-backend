@@ -4,10 +4,10 @@ metadata:
   name: frontend-service
   namespace: notesapp
 spec:
-  type: NodePort  # เปลี่ยนจาก ClusterIP
+  type: ClusterIP  # เปลี่ยนจาก ClusterIP
   selector:
     app: frontend
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 31476  # เลขหน้าเว็บหลักตามเช็คลิสต์
+       
