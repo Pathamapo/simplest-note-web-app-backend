@@ -4,11 +4,10 @@ metadata:
   name: backend-service
   namespace: notesapp
 spec:
-  type: ClusterIP
   selector:
     app: backend
   ports:
-    - port: 3000
-      targetPort: 3000
-
-
+    
+port: 3000
+    targetPort: 3000
+type: ClusterIP
