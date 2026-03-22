@@ -4,7 +4,7 @@ metadata:
   name: frontend-service
   namespace: notesapp
 spec:
-  type: ClusterIP  # เปลี่ยนจาก ClusterIP
+  type: NodePort  # เปลี่ยนจาก ClusterIP
   selector:
     app: frontend
   ports:
