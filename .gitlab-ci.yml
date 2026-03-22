@@ -88,8 +88,8 @@ deploy_to_k8s:
   needs: ["push_to_dockerhub"]
   script:
     - export KUBECONFIG="$KUBE_CONFIG"
-    - sed -i "s|YOUR_BACKEND_IMAGE|$BACKEND_IMAGE|g" k8s/*.yaml
-    - sed -i "s|YOUR_FRONTEND_IMAGE|$FRONTEND_IMAGE|g" k8s/*.yaml
+    - sed -i "s|YOUR_BACKEND_IMAGE|$BACKEND_IMAGE|g" k8s/backend-deployment.yaml
+    - sed -i "s|YOUR_FRONTEND_IMAGE|$FRONTEND_IMAGE|g" k8s/frontend-deployment.yaml
     - kubectl apply -f k8s/
   only:
     - main
