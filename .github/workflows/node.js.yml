@@ -84,7 +84,7 @@ jobs:
 
       # 11. Deploy to Kubernetes (เปิดเมื่อพร้อม)
       - name: Deploy to Kubernetes
-        if: false   # 🔥 เปลี่ยนเป็น true เมื่อมีไฟล์ k8s/ พร้อม
+        if: true   # 🔥 เปลี่ยนเป็น true เมื่อมีไฟล์ k8s/ พร้อม
         run: |
           export KUBECONFIG=$PWD/kubeconfig.yaml
           kubectl apply -f k8s/
