@@ -36,7 +36,7 @@ test_frontend:
   only:
     - main
 
-# 2. Stage Build: สร้าง Image เก็บไว้ในเครื่อง Runner
+# 2. Stage Build:
 build_images:
   stage: build
   image: docker:24.0.5
@@ -47,8 +47,7 @@ build_images:
   needs: ["test_backend", "test_frontend"]
   script:
     - docker build -t $BACKEND_IMAGE ./backend
-    - docker build --build-arg VUE_APP_API_URL=http://10.5.3.213:30001/api/notes -t $FRONTEND_IMAGE ./frontend
-    # เซฟ Image เป็นไฟล์ชั่วคราวเพื่อให้ Stage ถัดไปเอาไปใช้ได้ (ถ้า Runner ไม่ได้แชร์ storage กัน)
+    - docker build --build-arg VUE_APP_API_URL=http://10.5.3.213/api -t $FRONTEND_IMAGE ./frontend
     - docker save $BACKEND_IMAGE > backend.tar
     - docker save $FRONTEND_IMAGE > frontend.tar
   artifacts:
@@ -59,7 +58,7 @@ build_images:
   only:
     - main
 
-# 3. Stage Push: ส่ง Image ขึ้น Docker Hub
+# 3. Stage Push
 push_to_dockerhub:
   stage: push
   image: docker:24.0.5
@@ -77,7 +76,7 @@ push_to_dockerhub:
   only:
     - main
 
-# 4. Stage Deploy: สั่งงาน K8s ผ่าน KUBE_CONFIG
+# 4. Stage Deploy
 deploy_to_k8s:
   stage: deploy
   image:
@@ -88,8 +87,12 @@ deploy_to_k8s:
   needs: ["push_to_dockerhub"]
   script:
     - export KUBECONFIG="$KUBE_CONFIG"
+    # ใช้ sed เพื่อเปลี่ยนชื่อ Image ในไฟล์ YAML ให้เป็นตัวล่าสุดที่เราเพิ่ง Push ไป
     - sed -i "s|YOUR_BACKEND_IMAGE|$BACKEND_IMAGE|g" k8s/backend-deployment.yaml
     - sed -i "s|YOUR_FRONTEND_IMAGE|$FRONTEND_IMAGE|g" k8s/frontend-deployment.yaml
     - kubectl apply -f k8s/
+    # บังคับให้ K8s ดึง Image ใหม่ล่าสุดมาใช้ (Rollout)
+    - kubectl rollout restart deployment/frontend -n notesapp
+    - kubectl rollout restart deployment/backend -n notesapp
   only:
     - main
