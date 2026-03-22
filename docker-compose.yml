@@ -1,4 +1,4 @@
-version: '3.8'
+1version: '3.8'
 
 services:
   # 1. MongoDB Service (ตัวฐานข้อมูล)
@@ -17,7 +17,7 @@ services:
     build: ./backend # ให้ไป Build Image จากโฟลเดอร์ backend
     container_name: notes-api
     ports:
-      - "3000:3000"
+      - "3000:30001"
     environment:
       # ส่งตัวแปรเชื่อมต่อ DB ไปหา Backend โดยใช้ชื่อ Service "mongodb" แทน IP
       - MONGO_URL=mongodb://notesuser:password123@10.5.3.213:27017/notesapp
