@@ -26,4 +26,4 @@ spec:
         - name: SESSION_SECRET
           value: "supersecret123"
         - name: FRONTEND_URL
-          value: "http://10.5.3.213:31476"
+          value: "http://10.5.3.213:31477"
