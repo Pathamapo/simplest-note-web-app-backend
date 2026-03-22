@@ -11,63 +11,47 @@ variables:
   BACKEND_IMAGE: $REGISTRY/$DOCKERHUB_NAMESPACE/notes-backend:latest
   FRONTEND_IMAGE: $REGISTRY/$DOCKERHUB_NAMESPACE/notes-frontend:latest
 
-# 1. Stage Test
+# 1. Stage Test (ด่านเช็คความเรียบร้อยของโค้ด)
 test_backend:
   stage: test
   image: node:18-alpine
-  tags:
-    - informatics
+  tags: [informatics]
   script:
-    - cd backend
-    - npm install
-    - npm test || echo "Backend test skipped"
-  only:
-    - main
+    - cd backend && npm install && npm test || echo "Backend test skipped"
+  only: [main]
 
 test_frontend:
   stage: test
   image: node:18-alpine
-  tags:
-    - informatics
+  tags: [informatics]
   script:
-    - cd frontend
-    - npm install
-    - npm run lint || echo "Frontend lint skipped"
-  only:
-    - main
+    - cd frontend && npm install && npm run lint || echo "Frontend lint skipped"
+  only: [main]
 
-# 2. Stage Build:
+# 2. Stage Build: (สร้าง Image ใหม่แบบไม่ใช้ของเก่า - แก้ปัญหาพอร์ตไม่ขยับ)
 build_images:
   stage: build
   image: docker:24.0.5
-  services:
-    - docker:24.0.5-dind
-  tags:
-    - informatics
+  services: [docker:24.0.5-dind]
+  tags: [informatics]
   needs: ["test_backend", "test_frontend"]
   script:
-    - docker build -t $BACKEND_IMAGE ./backend
-    - docker build --build-arg VUE_APP_API_URL=http://10.5.3.213:30001/api/notes -t $FRONTEND_IMAGE ./frontend
+    # บังคับ Build ใหม่ 100% และฝังเลขพอร์ต 30001 ลงไปในหน้าเว็บ
     - docker build --no-cache -t $BACKEND_IMAGE ./backend
-- docker build --no-cache --build-arg VUE_APP_API_URL=http://10.5.3.213:30001/api/notes -t $FRONTEND_IMAGE ./frontend
+    - docker build --no-cache --build-arg VUE_APP_API_URL=http://10.5.3.213:30001/api/notes -t $FRONTEND_IMAGE ./frontend
     - docker save $BACKEND_IMAGE > backend.tar
     - docker save $FRONTEND_IMAGE > frontend.tar
   artifacts:
-    paths:
-      - backend.tar
-      - frontend.tar
+    paths: [backend.tar, frontend.tar]
     expire_in: 1 hour
-  only:
-    - main
+  only: [main]
 
-# 3. Stage Push
+# 3. Stage Push: (ส่ง Image ล่าสุดขึ้น Docker Hub)
 push_to_dockerhub:
   stage: push
   image: docker:24.0.5
-  services:
-    - docker:24.0.5-dind
-  tags:
-    - informatics
+  services: [docker:24.0.5-dind]
+  tags: [informatics]
   needs: ["build_images"]
   script:
     - docker load < backend.tar
@@ -75,26 +59,21 @@ push_to_dockerhub:
     - echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
     - docker push $BACKEND_IMAGE
     - docker push $FRONTEND_IMAGE
-  only:
-    - main
+  only: [main]
 
-# 4. Stage Deploy
+# 4. Stage Deploy: (สั่ง K8s อัปเดตพอร์ต 31476 และ 30001)
 deploy_to_k8s:
   stage: deploy
-  image:
-    name: bitnami/kubectl:latest
-    entrypoint: [""]
-  tags:
-    - informatics
+  image: { name: "bitnami/kubectl:latest", entrypoint: [""] }
+  tags: [informatics]
   needs: ["push_to_dockerhub"]
   script:
     - export KUBECONFIG="$KUBE_CONFIG"
-    # ใช้ sed เพื่อเปลี่ยนชื่อ Image ในไฟล์ YAML ให้เป็นตัวล่าสุดที่เราเพิ่ง Push ไป
+    # แก้พอร์ตในไฟล์ YAML (ถ้าโอ๊คแก้ในไฟล์แล้ว คำสั่งนี้จะช่วยย้ำความถูกต้องครับ)
     - sed -i "s|YOUR_BACKEND_IMAGE|$BACKEND_IMAGE|g" k8s/backend-deployment.yaml
     - sed -i "s|YOUR_FRONTEND_IMAGE|$FRONTEND_IMAGE|g" k8s/frontend-deployment.yaml
-    - kubectl apply -f k8s/
-    # บังคับให้ K8s ดึง Image ใหม่ล่าสุดมาใช้ (Rollout)
+    - kubectl apply -f k8s/ -n notesapp
+    # บังคับให้ K8s ดีด Pod เก่าทิ้ง แล้วดึงตัวใหม่ล่าสุดมาใช้ทันที
     - kubectl rollout restart deployment/frontend -n notesapp
     - kubectl rollout restart deployment/backend -n notesapp
-  only:
-    - main
+  only: [main]
