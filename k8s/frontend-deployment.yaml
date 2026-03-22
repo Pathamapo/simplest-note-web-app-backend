@@ -14,11 +14,8 @@ spec:
         app: frontend
     spec:
       containers:
-      - name: frontend
-        image: pathamapornw/notesapp-frontend:latest v2
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 80
-        env:
-        - name: VUE_APP_API_URL
-          value: "http://10.5.3.213/api"
+      
+name: frontend
+      image: pathamapornw/notesapp-frontend:latest
+      ports:
+containerPort: 80
