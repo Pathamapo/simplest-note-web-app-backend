@@ -34,7 +34,7 @@ services:
       # ต้าอย่าลืมใส่ IP ของเครื่องนายตอนส่ง VITE_API_URL เข้าไปตอน Build นะครับ
       # ในตัวอย่างนี้ผมใส่เป็น IP ตัวที่คิงให้มา (สมมติว่าเป็นเครื่องรัน Backend ตัวหลัก)
       args:
-        - VUE_APP_API_URL=http://10.5.3.213:31476/api/notes
+        - VUE_APP_API_URL=http://10.5.3.213:30001/api/notes
     container_name: notes-web
     ports:
       - "8080:80" # แมพพอร์ต 8080 ในเครื่องเรา เข้าไปหาพอร์ต 80 (Nginx) ใน Docker
