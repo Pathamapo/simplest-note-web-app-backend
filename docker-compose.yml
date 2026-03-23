@@ -17,7 +17,7 @@ services:
     build: ./backend # ให้ไป Build Image จากโฟลเดอร์ backend
     container_name: notes-api
     ports:
-      - "3000:30001"
+      - "3000:3000"
     environment:
       # ส่งตัวแปรเชื่อมต่อ DB ไปหา Backend โดยใช้ชื่อ Service "mongodb" แทน IP
       - MONGO_URL=mongodb://notesuser:password123@10.5.3.213:27017/notesapp
@@ -34,7 +34,7 @@ services:
       # ต้าอย่าลืมใส่ IP ของเครื่องนายตอนส่ง VITE_API_URL เข้าไปตอน Build นะครับ
       # ในตัวอย่างนี้ผมใส่เป็น IP ตัวที่คิงให้มา (สมมติว่าเป็นเครื่องรัน Backend ตัวหลัก)
       args:
-        - VUE_APP_API_URL=http://10.5.3.213:30001/api/notes
+        - VUE_APP_API_URL=http://10.5.3.213/api/notes
     container_name: notes-web
     ports:
       - "8080:80" # แมพพอร์ต 8080 ในเครื่องเรา เข้าไปหาพอร์ต 80 (Nginx) ใน Docker
