@@ -1,7 +1,7 @@
 <template>
   <div class="main-page">
     <nav>
-      <h1 class="note-app">Note App</h1>
+      <h1 class="note-app">Group 03 Note App</h1>
       <router-link to="/add" class="add-button">Add Note</router-link>
     </nav>
     <div class="note-grid">
