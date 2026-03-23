@@ -3,7 +3,7 @@ WORKDIR /app
 
 # 1. ก๊อปไฟล์ config ก่อน
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm install
 
 # 2. ก๊อปปี้ทุกอย่าง รวมถึงโฟลเดอร์ src
 COPY . .
