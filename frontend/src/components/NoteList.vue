@@ -66,8 +66,8 @@ nav {
 .add-button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #29292b;
-  color: #dbdddf;
+  background-color: #ffffff;
+  color: #483D8B;
   text-decoration: none;
   border: none;
   font-weight: bold;
@@ -91,7 +91,7 @@ nav {
 
 .note-card {
   padding: 20px;
-  background-color: #FF66FF;
+  background-color: #483D8B;
   border-radius: 7px;
   min-height: 130px;
   max-height: 400px;
@@ -129,12 +129,13 @@ nav {
 }
 
 .delete-button {
-  color: #d7d7e0;
-  border: 1px solid #9d9d9f;
-  background-color: transparent;
+  color: #000000;
+  border: 1px solid #000000;
+  background-color: #FAEBD7;
+  border-radius: 5px;
   cursor: pointer;
   transition: .2s;
-  padding: 5px;
+  padding: 7px;
   margin: 0 0 0 20px;
 }
 
