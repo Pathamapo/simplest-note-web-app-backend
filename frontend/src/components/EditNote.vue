@@ -56,14 +56,20 @@ export default {
   }
 },
     async updateNote() {
-      try {
-        const updatedNote = [this.title, this.text];
-        await noteService.updateNoteById(this.id, updatedNote);
-        this.$router.push('/');
-      } catch (error) {
-        console.error('Error updating note:', error);
-      }
-    },
+  try {
+    const updatedNote = {
+      title: this.title,
+      text: this.text,
+    };
+
+    await noteService.updateNoteById(this.id, updatedNote);
+
+    this.$router.push('/');
+
+  } catch (error) {
+    console.error(error);
+  }
+},
     async autoExpand() {
       this.$refs.expandingTextarea.style.height = 'auto';
       this.$refs.expandingTextarea.style.height = this.$refs.expandingTextarea.scrollHeight + 'px';
