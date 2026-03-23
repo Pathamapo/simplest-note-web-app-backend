@@ -1,15 +1,17 @@
-# --- Stage 1: Build Frontend (Vite) ---
+# --- Stage 1: Build Frontend (Vite/Vue) ---
 FROM node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 
-# รับค่า VITE_API_URL จาก build-arg
+# 1. ประกาศรับค่าจาก --build-arg ใน node.js.yml
 ARG VUE_APP_API_URL
-ENV VUE_APP_API_URL=http://10.5.3.213:30001/api/notes
 
-# Build หน้าเว็บ
+# 2.ให้ ENV ใช้ค่าจาก ARG แทนการเขียนเลขพอร์ตตายตัว
+ENV VUE_APP_API_URL=${VUE_APP_API_URL}
+
+# 3. สั่ง Build หน้าเว็บ
 RUN npm run build
 
 # --- Stage 2: Serve using Nginx ---
