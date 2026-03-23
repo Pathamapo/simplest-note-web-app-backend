@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.VUE_APP_API_URL || "http://10.5.3.213/api/notes";
+const API_URL = process.env.VUE_APP_API_URL || "/api/notes";
 console.log("NEW VERSION TEST 123"); // 👈 ใส่ตรงนี้
 export default {
   serverDown() {
