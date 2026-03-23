@@ -118,8 +118,8 @@ textarea {
 button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #29292b;
-  color: #dbdddf;
+  background-color: #FAEBD7;
+  color: #000000;
   text-decoration: none;
   border: none;
   font-weight: bold;
@@ -131,7 +131,7 @@ button {
 
 button:hover {
   color: #29292b;
-  background-color: #dbdddf;
+  background-color: #21c221;
 }
 
 button:disabled {
