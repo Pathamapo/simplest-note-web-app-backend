@@ -31,34 +31,30 @@ export default {
   },
   methods: {
     async fetchNoteData() {
-      try {
-        const response = await noteService.getNoteById(this.id);
-        // เช็คว่าข้อมูลส่งกลับมาเป็น Array หรือ Object
-        const note = Array.isArray(response.data) ? response.data[0] : response.data;
+  try {
+    const response = await noteService.getNoteById(this.id);
 
-        if (note) {
-          // 1. จัดการเรื่องวันที่ (ใส่ Try-Catch กันพังถ้าไม่มี date)
-          if (note.date) {
-            const localDate = new Date(note.date);
-            this.date = localDate.toLocaleString("ru-RU");
-          } else {
-            this.date = "No date available"; // กรณีไม่มีวันที่ในฐานข้อมูล
-          }
+    const note = Array.isArray(response) ? response[0] : response;
 
-          // 2. Map ข้อมูลลงตัวแปร (เช็คชื่อฟิลด์ให้ตรงกับ Database)
-          // ถ้าใน DB ใช้ 'content' ให้เปลี่ยน 'text' เป็น 'content' นะครับ
-          this.title = note.title || '';
-          this.text = note.text || note.content || ''; 
-          
-          // เก็บค่าเก่าไว้เทียบปุ่ม Disable
-          this.old_title = this.title;
-          this.old_text = this.text;
-        }
-      } catch (error) {
-        console.error('Error fetching note data:', error);
-        alert("ไม่สามารถโหลดข้อมูลโน้ตได้");
+    if (note) {
+      if (note.date) {
+        const localDate = new Date(note.date);
+        this.date = localDate.toLocaleString("ru-RU");
+      } else {
+        this.date = "No date available";
       }
-    },
+
+      this.title = note.title || '';
+      this.text = note.text || note.content || '';
+
+      this.old_title = this.title;
+      this.old_text = this.text;
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
+},
     async updateNote() {
       try {
         const updatedNote = [this.title, this.text];
