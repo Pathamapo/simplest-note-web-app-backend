@@ -38,7 +38,7 @@ build_images:
   script:
     # บังคับ Build ใหม่ 100% และฝังเลขพอร์ต 30001 ลงไปในหน้าเว็บ
     - docker build --no-cache -t $BACKEND_IMAGE ./backend
-    - docker build --no-cache --build-arg VUE_APP_API_URL=http://10.5.3.213:30001/api/notes -t $FRONTEND_IMAGE ./frontend
+    - docker build --no-cache --build-arg VUE_APP_API_URL=http://10.5.3.213/api/notes -t $FRONTEND_IMAGE ./frontend
     - docker save $BACKEND_IMAGE > backend.tar
     - docker save $FRONTEND_IMAGE > frontend.tar
   artifacts:
