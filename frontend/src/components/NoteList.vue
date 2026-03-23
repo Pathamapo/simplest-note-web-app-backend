@@ -91,7 +91,7 @@ nav {
 
 .note-card {
   padding: 20px;
-  background-color: #29292b;
+  background-color: #FF66FF;
   border-radius: 7px;
   min-height: 130px;
   max-height: 400px;
