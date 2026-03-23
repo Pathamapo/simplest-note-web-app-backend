@@ -15,6 +15,9 @@ spec:
     spec:
       containers:
       - name: frontend      
-        image: YOUR_FRONTEND_IMAGE
+        image: pathamapornw/notesapp-frontend:latest
         ports:
-        - containerPort: 80  
+        - containerPort: 80
+        env:
+        - name: VUE_APP_API_URL
+          value: "/api/notes"
