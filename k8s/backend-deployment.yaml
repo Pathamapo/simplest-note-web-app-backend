@@ -20,10 +20,10 @@ spec:
         - containerPort: 3000
         env:
         - name: MONGO_URL
-          value: "mongodb://10.5.3.213:27017/notesapp"
+          value: "mongodb://notesuser:password123@10.5.3.213:27017/notesapp"
         - name: PORT
           value: "3000"
         - name: SESSION_SECRET
           value: "supersecret123"
         - name: FRONTEND_URL
-          value: "http://10.5.3.213:31477"
+          value: "http://10.5.3.213:31476"
