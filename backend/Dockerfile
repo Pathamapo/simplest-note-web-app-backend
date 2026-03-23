@@ -1,20 +1,18 @@
-# ใช้ Node.js เวอร์ชั่น LTS (18) เป็น Base Image
 FROM node:18-alpine
-
-# กำหนดโฟลเดอร์ทำงานใน Container
 WORKDIR /app
 
-# ก๊อปปี้ไฟล์ package.json เพื่อลง dependencies
+# 1. ก๊อปไฟล์ config ก่อน
 COPY package*.json ./
-
-# ลง Library ทั้งหมด (แบบ Production เพื่อประหยัดพื้นที่)
 RUN npm install --only=production
 
-# ก๊อปปี้โค้ดทั้งหมด (src, .env.example, etc.)
+# 2. ก๊อปปี้ทุกอย่าง รวมถึงโฟลเดอร์ src
 COPY . .
 
-# เปิดพอร์ต 3000
+# 3. เช็คให้ชัวร์ว่ามีไฟล์ index.js อยู่ใน src จริงๆ
+# (เพิ่มบรรทัดนี้เพื่อ debug ตอน build ถ้าหาไม่เจอจะได้รู้ทันที)
+RUN ls -R /app/src
+
 EXPOSE 3000
 
-# คำสั่งสำหรับรัน Backend (อ้างอิงจาก package.json script)
-CMD ["npm", "start"]
+# 4. สั่งรันตรงๆ ไม่ต้องผ่าน npm เพื่อลด layer ของ error
+CMD ["node", "src/index.js"]
