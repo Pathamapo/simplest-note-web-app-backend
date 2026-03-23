@@ -34,7 +34,7 @@ export default {
   methods: {
     async fetchNotes() {
   const response = await noteService.getAllNotes();
-  this.notes = response ? response : [];
+  this.notes = response || [];
   },
     async deleteNote(noteId) {
       await noteService.deleteNote(noteId);
